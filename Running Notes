@@ -1,0 +1,69 @@
+configuring aws credentials to work with Terraform
+  1. Create .aws directory
+  2. Created "credentials" file, with no extension
+      [defaults]
+      aws_access_key_id=<user aws access key>
+      aws_secret_access_key=<User aws secret access key>
+
+Terraform is a single binary, In order to work with it just download a binary and place it in system directory ( ex: /usr/local/bin/terrafom) and export path to execute
+it from any where in the system.
+
+Terraform init command need to be run in the same directory where ".tf" extension file present. It will find any ".tf" file with in directory
+Based on the provide mentioned in the ".tf" file it will download and install addition plugin to work with terraform.
+    provider "aws" {
+      region="us-east-1"
+    }
+
+Terraform apply command provide detail description of what action it's going to do by displaying execution plan. Once you confirm it will perform operation.
+
+Terraform allow you to use one resource data in another, this is main distinction compared to non-terraform script. It can define resources
+based on definition of other resources even if they don't exist yet.
+  code ( Infrastructure described in code ) -> state ( compare wit current existed state ) -> plan ( step by step script that will make changes) -> Apply ( make whatever changes needed )
+
+  Plan step determine what need to be done and in what order then terraform uses provide to apply plan and make whatever changes needed.
+
+Terraform is able to figure out how to do these things by using a data structure called graph ( Directed acyclic graph )
+
+
+Terraform plan
+---------------
+  Creating an execution plan in terraform is crucial part, "terraform plan" refreshed state in memory prior to plan
+  this plan will not save on local or remote storage ( it's nothing but calls out to aws to retrieve state of resource )
+  $terraform plan -destory --out=example.plan  ( to write execution plan to a file )
+  $terraform show example.plan                 ( to inspect plan file )
+
+
+Terraform state
+---------------
+  First one is what is the reality of your Infrastructure and the second one is what is the state of the resource on aws.
+  terraform maintain local representation of resource state is called "state file"
+  there is a possibility to have difference between state file and state.
+
+  We can inspect state file form most recent terraform run directly by "cat terraform.tfstate"
+
+  remote storage can be used when you working on teams using feature of terraform called "backends". It prevents users stomping on each other's changes.
+  and allows to do things like delegate and share resource.
+
+  $terraform state                  - to investigate terraform state
+  $terraform state list             - List resources in the tfstate
+  $terraform state show <resource>
+  $terraform show                   - It displays current state file
+  $terraform show -json             - this display blog of json format file, I can be used for programmatic purpose
+
+
+Terraform Apply
+---------------
+
+  $terraform apply <plan_file>    - Apply plan form file, no approval require
+  $terraform apply --auto-approve - Auto approval of execution plan
+
+
+Resources are building block of terraform code, these define what of your infrastructure, terraform figures out how
+Provider isn't a resource it will give access to resources
+
+Terraform recommended way of naming convention is component, environment, region and whatever you want to add for understanding.
+  ex: networking-prod-us-aws-..
+  most specific to most generic
+
+* Terraform fmt command used to format .tf and .tfvars files.
+  ex: terraform fmt test.tar
